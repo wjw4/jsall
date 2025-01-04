@@ -1,0 +1,30 @@
+### 將指定目錄下(非遞歸)的檔名語系(FROM)轉換成想替換語系(TO)
+CHANGE_FILE_DIR=C:\frank\code\resources\tmpl\images\game
+CHANGE_FILE_LOCALE_FROM=id_ID
+CHANGE_FILE_LOCALE_TO=en_US
+
+
+### 將指定目錄下(遞歸)的檔名語系(FROM)轉換成想替換語系(TO)(目錄可以用,區分多個)
+RECUR_CHANGE_FILE_DIRLIST=C:\frank\code\resources\tmpl\images\game
+RECUR_CHANGE_FILE_LOCALE_FROM=id_ID
+RECUR_CHANGE_FILE_LOCALE_TO=en_US
+
+
+### 將指定目錄的語系檔遞歸複製一份替換語系後放置再同個目錄(目錄可以用,區分多個)
+COPY_IMG_DIRLIST=C:\frank\code\resources\tmpl\images\game
+COPY_IMG_LOCALE_FROM=en_US
+COPY_IMG_LOCALE_TO=id_ID
+
+
+### 將指定目錄的語系檔遞歸刪除(目錄可以用,區分多個)
+DELETE_IMG_DIRLIST=C:\frank\code\resources\tmpl\images
+DELETE_IMG_LOCALE=in_ID
+
+
+### 通用檔案處理
+REGEX_UPDATE_FILE_DIR_LIST=C:\frank\code\resources\tmpl\images\withdraw
+REGEX_UPDATE_FROM=(banner)_h5
+REGEX_UPDATE_FROM_FLAGS=
+REGEX_UPDATE_TO=$1_bb
+REGEX_UPDATE_ACTION=rename
+REGEX_UPDATE_IS_RECURSIVE=1
