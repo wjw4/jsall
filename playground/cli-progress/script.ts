@@ -1,23 +1,25 @@
 import ansiEscapes from 'ansi-escapes'
 import * as process from "node:process";
 
-process.stdout.write(ansiEscapes.cursorHide);
-process.stdout.write(ansiEscapes.cursorSavePosition)
-process.stdout.write('░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░');
+const write = process.stdout.write.bind(process.stdout)
+
+write(ansiEscapes.cursorHide);
+write(ansiEscapes.cursorSavePosition)
+write('░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░');
 
 setTimeout(() => {
-  process.stdout.write(ansiEscapes.cursorRestorePosition)
-  process.stdout.write('████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░');
+  write(ansiEscapes.cursorRestorePosition)
+  write('████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░');
 }, 1000)
 
 setTimeout(() => {
-  process.stdout.write(ansiEscapes.cursorRestorePosition)
-  process.stdout.write('███████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░');
+  write(ansiEscapes.cursorRestorePosition)
+  write('███████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░');
 }, 2000)
 
 setTimeout(() => {
-  process.stdout.write(ansiEscapes.cursorRestorePosition)
-  process.stdout.write('██████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░');
+  write(ansiEscapes.cursorRestorePosition)
+  write('██████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░');
 }, 3000)
 
 /* 模擬實現的代碼
