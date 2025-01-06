@@ -1,5 +1,7 @@
 import ansiEscapes from 'ansi-escapes'
+import * as process from "node:process";
 
+process.stdout.write(ansiEscapes.cursorHide);
 process.stdout.write(ansiEscapes.cursorSavePosition)
 process.stdout.write('░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░');
 
