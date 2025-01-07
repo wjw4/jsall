@@ -65,6 +65,7 @@ export class ProgressBar {
   }
 
   stop() {
+    // `EOL` 的意思是 **End Of Line**，代表特定操作系統的換行符，用來處理不同平台下的換行符差異
     ProgressBar._write(EOL)
   }
 
@@ -106,14 +107,18 @@ export class ProgressBar {
       const completeColumns = Math.floor(barColumns * rate)
       const incompleteColumns = barColumns - completeColumns
       const completeBarText = this._barCompleteChar.repeat(completeColumns)
-      const completeBar = this._barCompleteColorHex ? chalk.hex(this._barCompleteColorHex).bold(completeBarText) : completeBarText
+      const completeBar = this._barCompleteColorHex
+        ? chalk.hex(this._barCompleteColorHex).bold(completeBarText)
+        : completeBarText
       const incompleteBarText = this._barIncompleteChar.repeat(incompleteColumns)
-      const incompleteBar = this._barIncompleteColorHex ? chalk.hex(this._barIncompleteColorHex).bold(incompleteBarText) : incompleteBarText
+      const incompleteBar = this._barIncompleteColorHex
+        ? chalk.hex(this._barIncompleteColorHex).bold(incompleteBarText)
+        : incompleteBarText
       progressText = progressText.replace('{bar}', `${completeBar}${incompleteBar}`)
     }
     ProgressBar._write(progressText)
 
-    if (percent === 100) {
+    if (rate === 1) {
       this.stop()
     }
   }
