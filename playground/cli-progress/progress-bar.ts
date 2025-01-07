@@ -13,8 +13,8 @@ export class ProgressBar {
   private readonly _hideCursor: boolean
   private readonly _barCompleteChar: string
   private readonly _barIncompleteChar: string
-  private readonly _barCompleteColorHex: string
-  private readonly _barIncompleteColorHex: string
+  private readonly _barCompleteColorHex: string | undefined
+  private readonly _barIncompleteColorHex: string | undefined
   private _current = 0;
   private _total = 100;
   private _terminalWidth = process.stdout.columns
@@ -25,8 +25,8 @@ export class ProgressBar {
       hideCursor,
       barCompleteChar = '\u2588',
       barIncompleteChar = '\u2591',
-      barCompleteColorHex = '#000000',
-      barIncompleteColorHex = '#000000',
+      barCompleteColorHex,
+      barIncompleteColorHex,
     }: {
       format?: string
       hideCursor?: boolean
@@ -105,8 +105,10 @@ export class ProgressBar {
 
       const completeColumns = Math.floor(barColumns * rate)
       const incompleteColumns = barColumns - completeColumns
-      const completeBar = chalk.hex(this._barCompleteColorHex).bold(this._barCompleteChar.repeat(completeColumns))
-      const incompleteBar = chalk.hex(this._barIncompleteColorHex).bold(this._barIncompleteChar.repeat(incompleteColumns))
+      const completeBarText = this._barCompleteChar.repeat(completeColumns)
+      const completeBar = this._barCompleteColorHex ? chalk.hex(this._barCompleteColorHex).bold(completeBarText) : completeBarText
+      const incompleteBarText = this._barIncompleteChar.repeat(incompleteColumns)
+      const incompleteBar = this._barIncompleteColorHex ? chalk.hex(this._barIncompleteColorHex).bold(incompleteBarText) : incompleteBarText
       progressText = progressText.replace('{bar}', `${completeBar}${incompleteBar}`)
     }
     ProgressBar._write(progressText)
