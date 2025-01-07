@@ -1,26 +1,32 @@
-import ansiEscapes from 'ansi-escapes'
-import * as process from "node:process";
+import {ProgressBar} from "./progress-bar.js";
 
-const write = process.stdout.write.bind(process.stdout)
+const bar = new ProgressBar({
+  format: '{bar} {percent}% || {current}/{total}',
+  barCompleteChar: '█',
+  barCompleteColorHex: '#ff8000',
+  barIncompleteChar: '░',
+  barIncompleteColorHex: '#ffe4c5',
+  hideCursor: true,
+})
+bar.start(72)
 
-write(ansiEscapes.cursorHide);
-write(ansiEscapes.cursorSavePosition)
-write('░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░');
+let value = 0;
+const timer = setInterval(function(){
+  value++;
 
-setTimeout(() => {
-  write(ansiEscapes.cursorRestorePosition)
-  write('████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░');
-}, 1000)
+  bar.update(value)
 
-setTimeout(() => {
-  write(ansiEscapes.cursorRestorePosition)
-  write('███████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░');
-}, 2000)
+  if (value >= bar.getTotal()){
+    clearInterval(timer);
 
-setTimeout(() => {
-  write(ansiEscapes.cursorRestorePosition)
-  write('██████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░');
-}, 3000)
+    bar.stop();
+  }
+}, 20);
+
+// write(ansiEscapes.cursorHide)
+// write(ansiEscapes.cursorSavePosition)
+// write(ansiEscapes.cursorRestorePosition)
+// write('█░')
 
 /* 模擬實現的代碼
 import { Bar } from 'cli-progress';

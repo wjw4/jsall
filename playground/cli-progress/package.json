@@ -12,7 +12,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "ansi-escapes": "^7.0.0"
+    "ansi-escapes": "^7.0.0",
+    "chalk": "^5.4.1",
+    "string-width": "^7.2.0"
   },
   "devDependencies": {
     "@types/node": "^22.10.5",
