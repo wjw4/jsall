@@ -1,0 +1,10 @@
+{
+  "name": "project-color-compiler",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "wjw4",
+  "license": "MIT",
+  "scripts": {
+    "build": "node tools/build.js"
+  }
+}

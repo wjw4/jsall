@@ -1,0 +1,80 @@
+// http://meyerweb.com/eric/tools/css/reset/
+//  v2.0 | 20110126
+//  License: none (public domain)
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline;
+}
+// HTML5 display-role reset for older browsers
+article, aside, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section {
+  display: block;
+}
+body {
+  line-height: 1;
+}
+ol, ul {
+  list-style: none;
+}
+blockquote, q {
+  quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+  content: '';
+  content: none;
+}
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+*{
+  box-sizing: border-box;
+  font-family: 微軟正黑體 !important;
+}
+
+.el-popconfirm__main { margin-bottom: 10px; }
+
+.night-dialog {
+  .el-dialog__body {
+    color: #c0c0c0;
+  }
+  .el-dialog__title, .el-dialog__close, .el-form-item__label, .el-input__inner, .el-checkbox__label, .el-input.is-disabled .el-input__inner, .el-radio {
+    color: #fff;
+  }
+  .el-input__inner, .el-input.is-disabled .el-input__inner {
+    border-color: #fff;
+    background-color: transparent;
+  }
+  .el-input.is-disabled .el-input__inner {
+    background-color: rgba(#fff, .2);
+  }
+  .el-dialog {
+    background: #303133;
+  }
+  .el-button--default {
+    border-color: #fff;
+    color: #fff;
+    background-color: transparent;
+    &:hover {
+      color: #409EFF;
+      border-color: #409EFF;
+    }
+  }
+}
