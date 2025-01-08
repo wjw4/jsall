@@ -1,4 +1,6 @@
-存放一些好多好多年前的傻或過時的東西
+存放一些好多好多年前寫的
 ===
 
-給大家看看笑笑
+以下盤點我認為重啟還能一用的東西
+- [每天學一點 vue/@2/chrome-extension/learning-daily](vue/%402/chrome-extension/learning-daily)
+- 
