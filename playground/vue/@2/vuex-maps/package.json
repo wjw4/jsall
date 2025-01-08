@@ -1,0 +1,12 @@
+{
+  "name": "vuex-maps",
+  "version": "1.0.0",
+  "description": "最實用的 vuex 庫 (The most useful vuex library.)",
+  "main": "index.js",
+  "keywords": [
+    "vue",
+    "vuex",
+    "vuex-maps"
+  ],
+  "license": "ISC"
+}
