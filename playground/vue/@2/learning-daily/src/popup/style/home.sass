@@ -1,0 +1,253 @@
+@import './var'
+
+.main
+    display: flex
+    flex-direction: column
+    align-items: center
+    justify-content: center
+    flex-wrap: wrap
+    width: 100%
+    font-size: 14px
+
+.dates-banner
+    width: 100%
+    display: block
+    overflow: hidden
+    white-space: nowrap
+    padding: 10px 0
+    position: relative
+    &__prev
+        left: 0
+    &__next
+        right: 0
+    &__prev, &__next
+        appearance: none
+        padding: 0
+        border: 0
+        outline: none
+        cursor: pointer
+        color: $green
+        background: $w
+        width: 21px
+        height: calc(100% - 20px)
+        position: absolute
+        top: 10px
+        z-index: 2
+    &__wrapper
+        transition: .3s ease
+        &__day
+            display: inline-block
+            vertical-align: middle
+            width: 50%
+            background: $green-light
+            color: $green
+            text-align: center
+            border-radius: 100px
+            padding: 12px 0
+            cursor: pointer
+            transition: 0.6s ease
+            &:hover, &--active
+                color: $w
+                background: $green
+            &:not(:last-child)
+                margin-right: 5%
+
+.footer
+    display: flex
+    align-items: flex-start
+    justify-content: space-between
+    background: $green-light
+    padding: 9px 21px
+    width: 100%
+    &__list
+        display: flex
+        flex-direction: column
+        justify-content: center
+        align-items: center
+        cursor: pointer
+        position: relative
+        min-width: 30px
+        &:hover
+            .footer__list__btn
+                color: $green
+                background: $green-light
+                box-shadow: 0 0 15px rgba($green, .8)
+        &__btn
+            appearance: none
+            outline: none
+            border: 0
+            color: $green
+            background: $w
+            border-radius: 50%
+            width: 30px
+            height: 30px
+            display: flex
+            align-items: center
+            justify-content: center
+            cursor: pointer
+            margin-bottom: 3px
+            transition: 0.6s ease
+            border: 1px solid $green
+            &-main
+                color: $w
+                background: $green
+                box-shadow: 0 0 15px $green
+                &__modal
+                    display: block
+                    position: absolute
+                    left: 50%
+                    top: -15px
+                    transform: translate(-50%, -100%)
+                    padding: 6px 0
+                    width: 90px
+                    background: $w
+                    filter: drop-shadow(0 5px 10px rgba($green, .5))
+                    font-size: 12px
+                    color: $green
+                    &::before
+                        content: ''
+                        border-top: 10px solid $w
+                        border-bottom: 0 solid transparent
+                        border-left: 7px solid transparent
+                        border-right: 7px solid transparent
+                        position: absolute
+                        left: 50%
+                        bottom: 0
+                        transform: translate(-50%, 100%)
+                    &__list
+                        display: flex
+                        align-items: center
+                        justify-content: center
+                        padding: 6px 12px
+                        transition: .6s ease
+                        &:hover
+                            background: $green-light
+                        &__icon
+                            margin-right: 5px
+                        &__width
+                            &-name
+                            &-input
+                                width: 100%
+                                height: 12px
+                                appearance: none
+                                border: 0
+                                outline: none
+                                background: none
+                                color: $bk
+                                font-size: 12px
+                                text-align: center
+        &__text
+            color: $green
+            font-size: 12px
+            text-align: center
+            transform: scale(.9)
+        &--noweb
+            .footer__list__btn
+                border-color: $gray-txt
+                color: $gray-txt
+            .footer__list__text
+                color: $gray-txt
+            &:hover
+                .footer__list__btn
+                    color: $w
+                    background: $gray-txt
+                    box-shadow: 0 0 15px rgba($gray-txt, .8)
+
+=cubeAndText
+    &__cube
+        display: inline-block
+        vertical-align: middle
+        width: 12px
+        height: 12px
+        margin-right: 6px
+        background: $gray
+    &__text
+        display: inline-block
+        vertical-align: middle
+        font-size: 13px
+        color: $bk
+
+=modalStyle
+    &__tip
+        width: 80%
+        margin: -20px auto 25px
+        color: $gray-txt
+        font-size: 12px
+        line-height: 1.5
+        padding-left: 10px
+        &__badge
+            font-size: 12px
+            padding: 1px 6px
+            border-radius: 3px
+            color: $bk
+            background: #ffd84a
+            &--danger
+                color: $w
+                background: $red
+    &__list
+        width: 80%
+        font-size: 15px
+        margin: 0 auto 25px
+        position: relative
+        &__name
+            color: $gray-txt
+            position: absolute
+            left: 10px
+            top: 50%
+            transform: translateY(-50%)
+            transition: .6s ease
+            pointer-events: none
+        &__input
+            appearance: none
+            width: 100%
+            padding: 10px
+            font-size: 15px
+            border: 0
+            border-bottom: 1px solid $gray
+            color: $bk
+            outline: none
+            transition: .6s ease
+            &:focus, &--valid
+                border-bottom-color: $green
+                ~ .create-modal__list__name, ~ .first-login-modal__list__name
+                    color: $green
+                    top: calc(50% - 25px)
+        &__checkbox
+            vertical-align: middle
+        &__text
+            font-size: 12px
+            vertical-align: middle
+            &__color
+                display: inline-block
+                vertical-align: middle
+                width: 10px
+                height: 10px
+                margin: 0 2px
+    &__btn
+        width: 222px
+        appearance: none
+        color: $w
+        background-color: $green
+        border: 0
+        border-radius: 100px
+        cursor: pointer
+        text-align: center
+        height: 42px
+        font-size: 16px
+        transition: 0.6s ease
+        outline: none
+        margin: 0 auto 20px
+        display: block
+        &:hover
+            background-color: $green-light
+            color: $green
+.create-modal, .first-login-modal
+    +modalStyle
+.first-login-modal
+    &__list__name
+        &__tip
+            display: inline-block
+            padding-left: 4px
+            color: $green
+            font-size: 12px
+            vertical-align: baseline
