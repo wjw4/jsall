@@ -1,5 +1,46 @@
+import https from 'node:https';
+import fs from 'node:fs';
 import {ProgressBar} from "./progress-bar.js";
 
+const downloadURLs = {
+  linux: 'https://storage.googleapis.com/chromium-browser-snapshots/Linux_x64/970501/chrome-linux.zip',
+  darwin: 'https://storage.googleapis.com/chromium-browser-snapshots/Mac/970501/chrome-mac.zip',
+  win32: 'https://storage.googleapis.com/chromium-browser-snapshots/Win/970501/chrome-win32.zip',
+  win64: 'https://storage.googleapis.com/chromium-browser-snapshots/Win_x64/970501/chrome-win32.zip',
+}
+
+https.get(downloadURLs.darwin, response => {
+  try {
+    fs.lstatSync('./dist')
+  } catch {
+    fs.mkdirSync('./dist')
+  }
+
+  const file = fs.createWriteStream('./dist/chromium.zip');
+  response.pipe(file);
+
+  /** @desc 資源總長度 */
+  const totalBytes = parseInt(response.headers['content-length']!, 10);
+  let value = 0
+
+  const bar = new ProgressBar({
+    format: '{bar} {percent}% || {current}/{total}',
+    barCompleteChar: '█',
+    barCompleteColorHex: '#ff8000',
+    barIncompleteChar: '░',
+    barIncompleteColorHex: '#ffe4c5',
+    hideCursor: true,
+  })
+
+  bar.start(totalBytes)
+
+  response.on('data', function (chunk) {
+    value += chunk.length
+    bar.update(value)
+  });
+});
+
+/* 基本款
 const bar = new ProgressBar({
   format: '{bar} {percent}% || {current}/{total}',
   barCompleteChar: '█',
@@ -27,6 +68,9 @@ const timer = setInterval(function(){
 // write(ansiEscapes.cursorSavePosition)
 // write(ansiEscapes.cursorRestorePosition)
 // write('█░')
+*/
+
+
 
 /* 模擬實現的代碼
 import { Bar } from 'cli-progress';
