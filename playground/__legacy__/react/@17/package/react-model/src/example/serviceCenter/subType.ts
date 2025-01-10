@@ -1,0 +1,1 @@
+export const subType = {RENDER_SEARCH_CONTROL: 'RENDER_SEARCH_CONTROL'}

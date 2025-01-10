@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "baseUrl": "./",
+    "paths": {
+      "@react-model": ["./src/@react-model"],
+      "src/*": ["./src/*"],
+      "assets/*": ["./src/assets/*"],
+      "component/*": ["./src/component/*"],
+      "@model/*": ["./src/model/*"],
+      "service/*": ["./src/service/*"],
+      "style/*": ["./src/style/*"],
+      "test/*": ["./src/test/*"],
+      "util/*": ["./src/util/*"],
+      "view/*": ["./src/view/*"]
+    },
+    "experimentalDecorators": true,
+    "noImplicitAny": true
+  }
+}
