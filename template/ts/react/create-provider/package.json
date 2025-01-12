@@ -1,0 +1,16 @@
+{
+  "name": "create-provider",
+  "version": "1.0.0",
+  "description": "create-provider\r ===",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/react": "^18.3.5",
+    "react": "^18.3.1"
+  }
+}
