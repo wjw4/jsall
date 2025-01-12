@@ -1,0 +1,14 @@
+%base-link {
+  @apply text-primary;
+  cursor: pointer;
+  transition: color 0.3s;
+  &:hover {
+    @apply text-hover-primary;
+  }
+}
+
+%no-scrollbar {
+  &::-webkit-scrollbar-track {}
+  &::-webkit-scrollbar { width: 0; }
+  &::-webkit-scrollbar-thumb {}
+}

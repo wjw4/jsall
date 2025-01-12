@@ -1,0 +1,17 @@
+{
+  "name": "demo-server",
+  "version": "1.0.0",
+  "description": "提供 demo 的 api 搓，快快寫隨便寫的，沒連 sql，重運行就會回朔資料",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "server": "node ./index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "koa": "^2.13.4",
+    "koa-router": "^10.1.1"
+  }
+}

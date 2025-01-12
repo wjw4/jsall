@@ -1,0 +1,16 @@
+{
+  "name": "@yoimu/common-lib",
+  "version": "0.0.8",
+  "description": "",
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.esm.js",
+  "typings": "type.d.ts",
+  "keywords": [],
+  "license": "ISC",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "moment": "^2.29.1"
+  }
+}
