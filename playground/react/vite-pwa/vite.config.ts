@@ -23,8 +23,15 @@ export default defineConfig({
                 {
                   requestWillFetch: async ({ request }) => {
                     const url = new URL(request.url)
-                    url.pathname = url.pathname.replace(/^\/\d\//, '/')
-                    return new Request(url, request)
+                    const [, version] = url.pathname.match(/^\/(\d)\//) || []
+
+                    if (version) {
+                      url.pathname = url.pathname.substring(version.length + 2)
+                      url.search = `?v=${version}`
+                      return new Request(url, request)
+                    }
+
+                    return request
                   },
                 },
               ],
