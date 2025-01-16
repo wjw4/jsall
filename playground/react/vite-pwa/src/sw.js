@@ -3,6 +3,24 @@ import { CacheFirst, StaleWhileRevalidate } from 'workbox-strategies'
 import { CacheableResponsePlugin } from 'workbox-cacheable-response'
 import { ExpirationPlugin } from 'workbox-expiration'
 
+// self.skipWaiting(): 新的 SW 立即跳過等待狀態並進入激活
+self.addEventListener('install', (event) => {
+  console.log('[SW] Install event');
+  self.skipWaiting(); // 跳過等待，立刻準備激活新 SW
+})
+
+// self.clients.claim(): 新 SW 在激活後接管所有頁面
+self.addEventListener('activate', (event) => {
+  console.log('[SW] Activate event');
+  event.waitUntil(
+    (async () => {
+      // 控制目前已打開的客戶端頁面
+      await self.clients.claim();
+      console.log('[SW] Clients claimed successfully!');
+    })()
+  );
+})
+
 // Step 1: 清理舊版緩存（与前面描述的 `activate` 逻辑一致）
 // self.addEventListener('activate', (event) => {
 //   console.log('[Service Worker] Activated');
