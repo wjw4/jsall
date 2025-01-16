@@ -2,36 +2,85 @@ import { registerRoute } from 'workbox-routing'
 import { CacheFirst, StaleWhileRevalidate } from 'workbox-strategies'
 import { CacheableResponsePlugin } from 'workbox-cacheable-response'
 import { ExpirationPlugin } from 'workbox-expiration'
-import { MP_VERSION } from './constants'
 
-// self.skipWaiting(): 新的 SW 立即跳過等待狀態並進入激活
-self.addEventListener('install', self.skipWaiting)
+const MP_LESS_VERSION = 1
+const MP_OFTEN_VERSION = 1
+const cacheVersionNames = {}
 
-// self.clients.claim(): 新 SW 在激活後接管所有頁面
+// base
+
+// mp favicon.ico 緩存
+
+// resources
+
+// fserver
+
+/*
+  永久(需要有有效期)
+  uno css 緩存
+  編譯的運行 js, css 緩存
+  訪問限制 js 緩存
+  fserver
+  mp cant
+  resources/common/audio
+
+  偶爾
+  mp favicon.ico 緩存
+  mp less
+
+  頻繁
+  mp often
+*/
+
+/** @desc 先用手填哈，反正基本不會動，靜態也不會影響打包流程 */
+const MP_DIRS = {
+  // 不會異動
+  cant: ['js', 'fonts'],
+  // 較少異動
+  less: ['audio', 'gif', 'pwa-assets', 'svg', 'video'],
+  // 頻繁異動
+  often: ['png', 'webp'],
+}
+
+self.addEventListener('install', () => {
+  // 新的 SW 立即跳過等待狀態並進入激活
+  self.skipWaiting()
+})
+
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    (() => self.clients.claim())()
+    (async () => {
+      // 新 SW 在激活後接管所有頁面，這樣才可以立即緩存加載到的資源
+      await self.clients.claim()
+
+      const cacheNames = await caches.keys()
+      await Promise.all(
+        cacheNames.map((cacheName) => {
+
+        })
+      )
+    })()
   );
 })
 
 // Step 1: 清理舊版緩存（与前面描述的 `activate` 逻辑一致）
-// self.addEventListener('activate', (event) => {
-//   console.log('[Service Worker] Activated');
-//   const currentCacheVersion = 'svg-cache-v2'; // 当前版本的缓存名称
-//   event.waitUntil(
-//     (async () => {
-//       const cacheNames = await caches.keys(); // 获取所有缓存名称
-//       await Promise.all(
-//         cacheNames.map((cacheName) => {
-//           if (cacheName !== currentCacheVersion && cacheName.startsWith('svg-cache-v')) {
-//             console.log(`Deleting old cache: ${cacheName}`);
-//             return caches.delete(cacheName); // 删除旧缓存
-//           }
-//         })
-//       );
-//     })()
-//   );
-// });
+self.addEventListener('activate', (event) => {
+  console.log('[Service Worker] Activated');
+  const currentCacheVersion = 'svg-cache-v2'; // 当前版本的缓存名称
+  event.waitUntil(
+    (async () => {
+      const cacheNames = await caches.keys(); // 获取所有缓存名称
+      await Promise.all(
+        cacheNames.map((cacheName) => {
+          if (cacheName !== currentCacheVersion && cacheName.startsWith('svg-cache-v')) {
+            console.log(`Deleting old cache: ${cacheName}`);
+            return caches.delete(cacheName); // 删除旧缓存
+          }
+        })
+      );
+    })()
+  );
+});
 
 /** @desc false=未加載, true=加載過(不管失敗), Promise=加載中 */
 let fetchVersionPromise = false
