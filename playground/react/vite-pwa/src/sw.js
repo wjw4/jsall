@@ -2,22 +2,15 @@ import { registerRoute } from 'workbox-routing'
 import { CacheFirst, StaleWhileRevalidate } from 'workbox-strategies'
 import { CacheableResponsePlugin } from 'workbox-cacheable-response'
 import { ExpirationPlugin } from 'workbox-expiration'
+import { MP_VERSION } from './constants'
 
 // self.skipWaiting(): 新的 SW 立即跳過等待狀態並進入激活
-self.addEventListener('install', (event) => {
-  console.log('[SW] Install event');
-  self.skipWaiting(); // 跳過等待，立刻準備激活新 SW
-})
+self.addEventListener('install', self.skipWaiting)
 
 // self.clients.claim(): 新 SW 在激活後接管所有頁面
 self.addEventListener('activate', (event) => {
-  console.log('[SW] Activate event');
   event.waitUntil(
-    (async () => {
-      // 控制目前已打開的客戶端頁面
-      await self.clients.claim();
-      console.log('[SW] Clients claimed successfully!');
-    })()
+    (() => self.clients.claim())()
   );
 })
 
@@ -40,6 +33,9 @@ self.addEventListener('activate', (event) => {
 //   );
 // });
 
+/** @desc false=未加載, true=加載過(不管失敗), Promise=加載中 */
+let fetchVersionPromise = false
+
 // Step 2: 註冊路由和緩存邏輯 (對應 `runtimeCaching`)
 registerRoute(
   // 路由匹配：匹配所有 .svg 文件的請求
@@ -50,6 +46,23 @@ registerRoute(
     plugins: [
       {
         requestWillFetch: async ({ request }) => {
+          if (fetchVersionPromise instanceof Promise) {
+            console.log(fetchVersionPromise, 222)
+            await fetchVersionPromise
+            if (fetchVersionPromise !== true) {
+              console.log(fetchVersionPromise, 333)
+              fetchVersionPromise = true
+            }
+            console.log(fetchVersionPromise, 444)
+          } else if (fetchVersionPromise === false) {
+            console.log(111)
+            fetchVersionPromise = new Promise((resolve, reject) => {
+              setTimeout(() => {
+                console.log(2000)
+                resolve()
+              }, 2000)
+            })
+          }
           const url = new URL(request.url)
           const [, version] = url.pathname.match(/^\/(\d)\//) || []
 

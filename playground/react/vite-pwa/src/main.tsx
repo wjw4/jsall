@@ -8,12 +8,29 @@ registerSW({
   onRegisterError: render,
 })
 
-export async function render () {
-  console.log('render app')
-  const App = await import('./App')
-  createRoot(document.getElementById('root')!).render(
-    <StrictMode>
-      <App.default />
-    </StrictMode>,
-  )
+function render (...args: any[]) {
+  import('./App')
+    .then(app => {
+      console.log('render app', ...args)
+      createRoot(document.getElementById('root')!).render(
+        <StrictMode>
+          <app.default />
+        </StrictMode>,
+      )
+    })
 }
+
+// import './index.css'
+// import { StrictMode } from 'react'
+// import { createRoot } from 'react-dom/client'
+// import { registerSW } from 'virtual:pwa-register';
+// import App from './App'
+//
+// registerSW()
+//
+// console.log('render app')
+// createRoot(document.getElementById('root')!).render(
+//   <StrictMode>
+//     <App />
+//   </StrictMode>,
+// )

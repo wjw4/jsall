@@ -1,0 +1,1 @@
+export const MP_VERSION = 1
