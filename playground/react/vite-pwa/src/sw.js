@@ -3,18 +3,6 @@ import { CacheFirst, StaleWhileRevalidate } from 'workbox-strategies'
 import { CacheableResponsePlugin } from 'workbox-cacheable-response'
 import { ExpirationPlugin } from 'workbox-expiration'
 
-const MP_LESS_VERSION = 1
-const MP_OFTEN_VERSION = 1
-const cacheVersionNames = {}
-
-// base
-
-// mp favicon.ico 緩存
-
-// resources
-
-// fserver
-
 /*
   永久(需要有有效期)
   uno css 緩存
