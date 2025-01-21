@@ -3,6 +3,14 @@ import { CacheFirst, StaleWhileRevalidate } from 'workbox-strategies'
 import { CacheableResponsePlugin } from 'workbox-cacheable-response'
 import { ExpirationPlugin } from 'workbox-expiration'
 
+const HTTPS_ORIGIN_REG = '^https:\\/\\/[^.\\/]+\\.[^.\\/]+(\\.[^.\\/]+)?\\/'
+const UNO_CSS_REG = new RegExp(`${HTTPS_ORIGIN_REG}assets\\/uno-[A-z0-9-_]+\\.css$`)
+const BUNDLE_JS_CSS_REG = new RegExp(`${HTTPS_ORIGIN_REG}assets\\/(chunk\\/)?(vendor\\/|locale\\/)?.+-legacy-[A-z0-9-_]+\\.(js|css)$`)
+const VIEW_ACCESS_JS_REG = new RegExp(`${HTTPS_ORIGIN_REG}ra-[A-z0-9-_]+\\.js$`)
+const MP_FAVICON_REG = new RegExp(`${HTTPS_ORIGIN_REG}mp\\/favicon.ico$`)
+const FSERVER_REG = new RegExp(`${HTTPS_ORIGIN_REG}fserver\\/files\\/images\\/[0-9]+\\/.+\\.[A-z0-9]+$`)
+const RESOURCES_REG = new RegExp(`${HTTPS_ORIGIN_REG}resources\\/(common|TEMPLATE_NAME)\\/(festival|images|video|audio)\\/.+\\.[A-z0-9]+$`)
+
 /*
   永久(需要有有效期)
   uno css 緩存
