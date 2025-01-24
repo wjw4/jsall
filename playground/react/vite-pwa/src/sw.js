@@ -1,24 +1,61 @@
 import { registerRoute } from 'workbox-routing'
-import { CacheFirst, StaleWhileRevalidate } from 'workbox-strategies'
-import { CacheableResponsePlugin } from 'workbox-cacheable-response'
-import { ExpirationPlugin } from 'workbox-expiration'
 
-const HTTPS_ORIGIN_REG = '^https:\\/\\/[^.\\/]+\\.[^.\\/]+(\\.[^.\\/]+)?\\/'
-
-// 永久 START
-const UNO_CSS_REG = new RegExp(`${HTTPS_ORIGIN_REG}assets\\/uno-[A-z0-9-_]+\\.css$`)
-const BUNDLE_JS_CSS_REG = new RegExp(`${HTTPS_ORIGIN_REG}assets\\/(chunk\\/)?(vendor\\/|locale\\/)?.+-legacy-[A-z0-9-_]+\\.(js|css)$`)
-const VIEW_ACCESS_JS_REG = new RegExp(`${HTTPS_ORIGIN_REG}ra-[A-z0-9-_]+\\.js$`)
-const MP_FAVICON_REG = new RegExp(`${HTTPS_ORIGIN_REG}mp\\/favicon.ico$`)
-const FSERVER_REG = new RegExp(`${HTTPS_ORIGIN_REG}fserver\\/files\\/images\\/[0-9]+\\/.+\\.[A-z0-9]+$`)
-// 永久 END
-
-// 偶爾 START
-const RESOURCES_REG = new RegExp(`${HTTPS_ORIGIN_REG}resources\\/(common|TEMPLATE_NAME)\\/(festival|images|video|audio)\\/.+\\.[A-z0-9]+$`)
-// 偶爾 END
-
-// 頻繁 START
-// 頻繁 END
+const METADATA_KEY = '__metadata__'
+/** @desc 最大緩存時間 - 七天 */
+const MAX_CACHE_TIME = 7 * 24 * 60 * 60 * 1000;
+/** @desc 所有緩存的 key */
+const cacheInfo = {
+  mpLess: {
+    name: 'mp-less',
+    version: 1,
+  },
+  mpOften: {
+    name: 'mp-often',
+    version: 1,
+  },
+  resourcesCommonLess: {
+    name: 'res-common-less',
+    version: 1,
+  },
+  resourcesTmplLess: {
+    name: 'res-tmpl-less',
+    version: 1,
+  },
+  resourcesCommonOften: {
+    name: 'res-common-often',
+    version: 1,
+  },
+  resourcesTmplOften: {
+    name: 'res-tmpl-often',
+    version: 1,
+  },
+  // 非以上全是 other，永久地且有銷毀時間的
+  other: {
+    name: 'other',
+  },
+}
+/** @desc 會在初始化啟動時全數開啟放入，後面就不需要 await 了，也有 key 調用 */
+const openCache = (
+  /**
+   * @template {Record<string, any>} T
+   * @param {T} obj
+   * @return {Record<keyof T, Cache>}
+   */
+  (obj) => {
+    return {}
+  }
+)(cacheInfo)
+/** @desc 沒記錄到表示永久 */
+const mpVersionInfo = {
+  'mp/favicon': cacheInfo.mpLess,
+  'mp/audio': cacheInfo.mpLess,
+  'mp/gif': cacheInfo.mpLess,
+  'mp/pwa-assets': cacheInfo.mpLess,
+  'mp/svg': cacheInfo.mpLess,
+  'mp/video': cacheInfo.mpLess,
+  'mp/png': cacheInfo.mpOften,
+  'mp/webp': cacheInfo.mpOften,
+}
 
 /*
   主要資源目錄前綴分為
@@ -45,73 +82,98 @@ const RESOURCES_REG = new RegExp(`${HTTPS_ORIGIN_REG}resources\\/(common|TEMPLAT
   resources/images/game
 */
 
-/** @desc 先用手填哈，反正基本不會動，靜態也不會影響打包流程 */
-const MP_DIRS = {
-  // 不會異動
-  cant: ['js', 'fonts'],
-  // 較少異動
-  less: ['audio', 'gif', 'pwa-assets', 'svg', 'video'],
-  // 頻繁異動
-  often: ['png', 'webp'],
-}
-
 self.addEventListener('install', () => {
+  console.log('[Service Worker] Installed');
+
   // 新的 SW 立即跳過等待狀態並進入激活
   self.skipWaiting()
 })
 
 self.addEventListener('activate', (event) => {
+  console.log('[Service Worker] Activated');
+
   event.waitUntil(
     (async () => {
       // 新 SW 在激活後接管所有頁面，這樣才可以立即緩存加載到的資源
       await self.clients.claim()
 
-      const cacheNames = await caches.keys()
+      const cacheNames = Object.keys(cacheInfo)
+      const now = Date.now()
       await Promise.all(
-        cacheNames.map((cacheName) => {
+        cacheNames.map(async (key) => {
+          const cacheName = cacheInfo[key].name
+          openCache[cacheName] = await caches.open(cacheName)
+          const metadataResponse = await openCache[cacheName].match(METADATA_KEY)
+          let hasMetadata = !!metadataResponse
 
+          if (hasMetadata) {
+            /** @type {{timestamp
+             : number; version: number}} */
+            let cacheMetadata
+
+            try {
+              cacheMetadata = await metadataResponse.json()
+              // other 是永久緩存所以看緩存時間銷毀
+              if (cacheName === 'other') {
+                if (now - cacheMetadata.timestamp > MAX_CACHE_TIME) {
+                  hasMetadata = resetOpenCache(cacheName)
+                }
+              }
+              // 其他看版本號
+              else {
+                if (cacheMetadata.version !== cacheInfo[key].version) {
+                  hasMetadata = resetOpenCache(cacheName)
+                }
+              }
+            } catch (err) {
+              console.error(err)
+              hasMetadata = false
+            }
+          }
+
+          if (!hasMetadata) {
+            const cacheMetadata = {
+              timestamp: Date.now(),
+            }
+
+            if (cacheInfo[key].version != null) {
+              cacheMetadata.version = cacheInfo[key].version
+            }
+
+            await openCache[cacheName].put(
+              METADATA_KEY,
+              new Response(JSON.stringify(cacheMetadata))
+            )
+          }
         })
       )
     })()
   );
 })
 
-// Step 1: 清理舊版緩存（与前面描述的 `activate` 逻辑一致）
-self.addEventListener('activate', (event) => {
-  console.log('[Service Worker] Activated');
-  const currentCacheVersion = 'svg-cache-v2'; // 当前版本的缓存名称
-  event.waitUntil(
-    (async () => {
-      const cacheNames = await caches.keys(); // 获取所有缓存名称
-      await Promise.all(
-        cacheNames.map((cacheName) => {
-          if (cacheName !== currentCacheVersion && cacheName.startsWith('svg-cache-v')) {
-            console.log(`Deleting old cache: ${cacheName}`);
-            return caches.delete(cacheName); // 删除旧缓存
-          }
-        })
-      );
-    })()
-  );
-});
-
-/** @desc false=未加載, true=加載過(不管失敗), Promise=加載中 */
-let fetchVersionPromise = false
-
-// Step 2: 註冊路由和緩存邏輯
 registerRoute(
   /*
     正則說明
-    group1 = origin/{這塊(mp, assets 之類的)}\/
-    group2 = group1 為 resources/{模板名}
-    group3 = group1 / 後的 resources 長路徑，也會匹配到其他的，假設路徑相同，所以要抽出來判斷
-    group4 = 檔名
-    group5 = 副檔名
+    https://xxx.xxx.xxx/assets/chunk/vendor/sub-swiper-legacy-BLr59Rjd.js
+    https://xxx.xxx.xxx/mp/fonts/Roboto-Regular.ttf
+    https://xxx.xxx.xxx/mp/webp/common_img_logo.webp
+    https://xxx.xxx.xxx/fserver/files/images/21/advertisement/a201cdd093d14dffb6fbbe9ef1be4d0e.png
+    https://xxx.xxx.xxx/resources/common/images/game/EVOPLAY/EVOPLAY_5787_en_US.webp
+    https://xxx.xxx.xxx/resources/common/images/game/EZUGI/EZUGI_1_en_US.webp
+    https://xxx.xxx.xxx/assets/uno-7b43cbc5.css
+    https://xxx.xxx.xxx/resources/default/images/sales-promotion/page-banner/activity_img_banner_tripledeposit_pt_BR.webp
+    https://xxx.xxx.xxx/mp/ra-asfcdsadf.js
+    https://xxx.xxx.xxx/mp/favicon.ico
 
-    ra-xxx.js 先不緩，要緩的話要改造進 mp 會比較好
+    group1 = origin/{這塊(mp, assets 之類的)}\/
+    group2 = 為緊隨 group1/ 後的目錄名
+    group3 = group2 / 後的 resources 長路徑，也會匹配到其他的，假設路徑相同，所以要抽出來判斷
+    group4 = 檔名
+
+    ra-xxx.js 要改進 mp 下
    */
   ({ url }) => {
-    const regex = /^(?:https:\/\/[^.\/]+\.[^.\/]+(?:\.[^.\/]+)?)?\/?(mp|assets|fserver|resources\/([A-z0-9]+))(\/images\/sales-promotion\/page-banner|\/images\/game)?.*\/([A-z0-9-_]+)\.([A-z0-9]+)$/
+    const regex = /^(?:https:\/\/[^.\/]+\.[^.\/]+(?:\.[^.\/]+)?)?\/?(mp|assets|fserver|resources)\/?([A-z0-9]+)?\/?(images\/sales-promotion\/page-banner|images\/game)?.*\/([A-z0-9-_]+)\.[A-z0-9]+$/
     const match = regex.exec(url.pathname)
     if (match) {
       url.matchGroups = match
@@ -121,98 +183,62 @@ registerRoute(
   },
   // 自定義 handler 動態控制是否緩存或讓資源過期
   async ({ event, url }) => {
+    // matchGroups 基本上是必定有
     const { matchGroups } = url
-    let cache
+    if (!matchGroups) return fetch(event.request)
 
-    if (matchGroups) {
-      const [, headName, resourcesTmplName, resourcesSpecificPathname, filename, extension] = matchGroups
-      cache = await caches.open(headName)
-    }
+    let cache = openCache.other, version
 
-    if (!cache) {
-      cache = await caches.open('anonymous')
-    }
+    const [, headName, trailHeadDirName, resourcesSpecificPathname, filename] = matchGroups
+    let cacheName
 
-    const cachedResponse = await cache.match(event.request);
-
-    if (cachedResponse) {
-      const cacheDate = new Date(cachedResponse.headers.get('date'));
-      const now = new Date();
-      /** @desc 緩存到期時間 7 天後 */
-      const maxAge = 7 * 24 * 60 * 60 * 1000;
-
-      if (now - cacheDate > maxAge) {
-        const [, response] = await Promise.all([
-          cache.delete(event.request),
-          fetch(event.request),
-        ])
-        if (response.ok) {
-          await cache.put(event.request, response.clone());
+    if (headName === 'mp') {
+      const versionInfo = mpVersionInfo[`${headName}/${trailHeadDirName}`] || mpVersionInfo[`${headName}/${filename}`]
+      if (versionInfo != null) {
+        cacheName = versionInfo.name
+        version = versionInfo.version
+      }
+    } else if (headName === 'resources') {
+      if (resourcesSpecificPathname) {
+        if (trailHeadDirName === 'common') {
+          cacheName = cacheInfo.resourcesCommonOften.name
+          version = cacheInfo.resourcesCommonOften.version
+        } else {
+          cacheName = cacheInfo.resourcesTmplOften.name
+          version = cacheInfo.resourcesTmplOften.version
         }
-        return response;
-      }
-
-      return cachedResponse;
-    }
-
-    const response = await fetch(event.request);
-    if (response.ok) {
-      // 動態指定條件，例如只緩存特定文件名的資源
-      const shouldCache = true;
-      if (shouldCache) {
-        await cache.put(event.request, response.clone());
+      } else {
+        if (trailHeadDirName === 'common') {
+          cacheName = cacheInfo.resourcesCommonLess.name
+          version = cacheInfo.resourcesCommonLess.version
+        } else {
+          cacheName = cacheInfo.resourcesTmplLess.name
+          version = cacheInfo.resourcesTmplLess.version
+        }
       }
     }
+
+    if (cacheName && openCache[cacheName]) {
+      cache = openCache[cacheName]
+    }
+
+    if (version != null) {
+      url.searchParams.append('v', version)
+    }
+    const cacheUrl = url.toString()
+    const cachedResponse = await cache.match(cacheUrl);
+    if (cachedResponse) return cachedResponse
+
+    const response = await fetch(new Request
+    (cacheUrl, event.request))
+    if (response.ok) await cache.put(cacheUrl, response.clone())
 
     return response;
   }
 )
 
-// registerRoute(
-//   // 路由匹配：匹配所有 .svg 文件的請求
-//   ({ url }) => url.pathname.endsWith('.svg'),
-//   // 緩存策略：CacheFirst（優先從緩存讀取）
-//   new CacheFirst({
-//     cacheName: 'svg-cache-v3', // 使用帶版本號的緩存名稱
-//     plugins: [
-//       {
-//         requestWillFetch: async ({ request }) => {
-//           if (fetchVersionPromise instanceof Promise) {
-//             console.log(fetchVersionPromise, 222)
-//             await fetchVersionPromise
-//             if (fetchVersionPromise !== true) {
-//               console.log(fetchVersionPromise, 333)
-//               fetchVersionPromise = true
-//             }
-//             console.log(fetchVersionPromise, 444)
-//           } else if (fetchVersionPromise === false) {
-//             console.log(111)
-//             fetchVersionPromise = new Promise((resolve, reject) => {
-//               setTimeout(() => {
-//                 console.log(2000)
-//                 resolve()
-//               }, 2000)
-//             })
-//           }
-//           const url = new URL(request.url)
-//           const [, version] = url.pathname.match(/^\/(\d)\//) || []
-//
-//           if (version) {
-//             url.pathname = url.pathname.substring(version.length + 2)
-//             url.search = `?v=${version}`
-//             return new Request(url, request)
-//           }
-//
-//           return request
-//         }
-//       },
-//       new CacheableResponsePlugin({
-//         statuses: [0, 200], // 僅緩存回應狀態碼 0 和 200 的請求
-//       }),
-//       new ExpirationPlugin({
-//         maxEntries: 50, // 緩存最多 50 個資源
-//         maxAgeSeconds: 7 * 24 * 60 * 60, // 緩存的資源有效期為 7 天
-//       }),
-//     ],
-//   })
-// )
+async function resetOpenCache (cacheName) {
+  await caches.delete(cacheName)
+  openCache[cacheName] = await caches.open(cacheName)
+  return false
+}
