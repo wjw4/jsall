@@ -1,6 +1,7 @@
-import fs from 'node:fs'
-import path from 'node:path'
-import { getConfig } from './_utils.js'
+import fs from 'fs'
+import path from 'path'
+import '../_error-handler.js'
+import { getConfig } from '../_utils.js'
 
 const { CHANGE_FILE_DIR, CHANGE_FILE_LOCALE_FROM, CHANGE_FILE_LOCALE_TO } = getConfig()
 

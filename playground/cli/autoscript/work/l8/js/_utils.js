@@ -1,8 +1,8 @@
-import { fileURLToPath } from 'node:url'
-import path from 'node:path'
-import fs from 'node:fs'
+import { fileURLToPath } from 'url'
+import path from 'path'
+import fs from 'fs'
 
-export const DIR_NAME = fileURLToPath(new URL('.', import.meta.url))
+export const DIR_NAME = path.dirname(fileURLToPath(import.meta.url))
 
 export function getConfig () {
   const configPath = path.resolve(DIR_NAME, '../_config.txt')

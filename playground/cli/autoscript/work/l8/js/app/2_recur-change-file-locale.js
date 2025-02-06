@@ -1,6 +1,7 @@
-import fs from 'node:fs'
-import path from 'node:path'
-import { getConfig } from './_utils.js'
+import fs from 'fs'
+import path from 'path'
+import '../_error-handler.js'
+import { getConfig } from '../_utils.js'
 
 const { RECUR_CHANGE_FILE_DIRLIST, RECUR_CHANGE_FILE_LOCALE_FROM, RECUR_CHANGE_FILE_LOCALE_TO } = getConfig()
 const dirList = RECUR_CHANGE_FILE_DIRLIST.split(',')

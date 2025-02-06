@@ -1,6 +1,7 @@
-import fs from 'node:fs'
-import path from 'node:path'
-import { getConfig } from './_utils.js'
+import fs from 'fs'
+import path from 'path'
+import '../_error-handler.js'
+import { getConfig } from '../_utils.js'
 
 const { DELETE_IMG_DIRLIST, DELETE_IMG_LOCALE } = getConfig()
 const dirList = DELETE_IMG_DIRLIST.split(',')

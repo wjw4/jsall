@@ -1,6 +1,7 @@
-import fs from 'node:fs'
-import path from 'node:path'
-import { getConfig } from './_utils.js'
+import fs from 'fs'
+import path from 'path'
+import '../_error-handler.js'
+import { getConfig } from '../_utils.js'
 
 const { COPY_IMG_DIRLIST, COPY_IMG_LOCALE_FROM, COPY_IMG_LOCALE_TO } = getConfig()
 const copyDirlist = COPY_IMG_DIRLIST.split(',')
