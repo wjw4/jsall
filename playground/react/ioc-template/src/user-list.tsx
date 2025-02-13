@@ -1,30 +1,61 @@
-import {Dispatch, SetStateAction, useState} from "react";
+import {Dispatch, SetStateAction, useEffect, useState} from "react";
+import {Container, injectable} from "inversify";
 
-const userData = [
-  'frank',
-  'jeff',
-  'jennifer',
-  'henry',
-  'edward',
-]
+@injectable()
+class UserListLogic {
+  username: string = '張三'
+  searchText: string = ''
+  userList: string[] = []
 
-function Search ({searchText, setSearchText}: {searchText:string; setSearchText:Dispatch<SetStateAction<string>>}) {
+  onChangeSearchText(searchText: string) {
+    this.searchText = searchText
+  }
+
+  getUsers() {
+    this.userList = [
+      'frank',
+      'jeff',
+      'jennifer',
+      'henry',
+      'edward',
+    ]
+  }
+}
+
+const container = new Container()
+container.bind(UserListLogic).toSelf()
+
+function Search() {
+  const userListLogic = container.get(UserListLogic)
+  const searchText = userListLogic.searchText
+
   return <div className={'flex items-center'}>
-    <input placeholder={'請輸入用戶名'} value={searchText} onChange={(e) => setSearchText(e.target.value)} />
+    <input placeholder={'請輸入用戶名'} value={searchText}
+           onChange={(e) => userListLogic.onChangeSearchText(e.target.value)}/>
   </div>
 }
 
-function List ({searchText}:{searchText:string}) {
+function List() {
+  const userListLogic = container.get(UserListLogic)
+  const userList = userListLogic.userList
+  const searchText = userListLogic.searchText
+
+  useEffect(() => {
+    userListLogic.getUsers()
+  }, [])
+
   return <div>
-    {userData.filter(e => e.includes(searchText)).map(e => <div key={e}>{e}</div>)}
+    {userList.filter(e => e.includes(searchText)).map(e => <div key={e}>{e}</div>)}
   </div>
 }
 
-export function UserList () {
-  const [searchText, setSearchText] = useState('')
+export function UserList() {
+  const userListLogic = container.get(UserListLogic)
+  const username = userListLogic.username
 
   return <div>
-    <Search searchText={searchText} setSearchText={setSearchText} />
-    <List searchText={searchText} />
+    <Search/>
+    <div>以下為 "{username}" 的推薦好友列表</div>
+    <List/>
   </div>
 }
